@@ -289,5 +289,10 @@ namespace DotNet.CloudFarm.Domain.Impl.Order
             };
             return result;
         }
+
+        public bool BatchCancelOrder(List<long> orderIds, int status)
+        {
+            return orderDataAccess.BatchCancelOrder(orderIds, status);
+        }
     }
 }

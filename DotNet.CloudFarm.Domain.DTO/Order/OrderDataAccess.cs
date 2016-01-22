@@ -502,6 +502,27 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
             }
         }
 
+
+        public bool BatchCancelOrder(List<long> orderIds, int status)
+        {
+            using (var cmd = DataCommandManager.GetDataCommand("BatchCancelOrder"))
+            {
+                var command = cmd.CommandText;
+                var sb = new StringBuilder();
+                sb.Append("where orderid in");
+                sb.Append("(");
+                var conditionStr = string.Join(",", orderIds);
+                sb.Append(conditionStr);
+                sb.Append(")");
+                command = string.Format("{0} {1}", command, sb.ToString());
+                cmd.CommandText = command;
+                cmd.SetParameterValue("@Status", status);
+                return cmd.ExecuteNonQuery() > 0;
+
+            }
+               
+        }
+
         //public Result<PagedList<PreSaleOrder>> GetPreSaleOrderList(int userId, int pageIndex, int pageSize)
         //{
         //    throw new NotImplementedException();

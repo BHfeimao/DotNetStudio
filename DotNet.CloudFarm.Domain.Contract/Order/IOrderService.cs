@@ -153,6 +153,14 @@ namespace DotNet.CloudFarm.Domain.Contract.Order
         /// <returns></returns>
         bool CheckOrderExist(long orderId);
 
+        /// <summary>
+        /// 批量删除订单方法
+        /// </summary>
+        /// <param name="orderIds"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        bool BatchCancelOrder(List<long> orderIds, int status);
+
         
     }
 }

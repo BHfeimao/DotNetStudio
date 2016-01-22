@@ -62,8 +62,8 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// </summary>
         [Ninject.Inject]
         public IWeiXinService WeiXinService { get; set; }
-     
-        
+
+
         [Ninject.Inject]
         public IOrderService OrderService { get; set; }
 
@@ -107,7 +107,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         {
             var accesstoken = AccessTokenContainer.TryGetToken(AppId, AppSecret);
             var menu = CommonApi.GetMenu(accesstoken);
-            if(menu!=null)
+            if (menu != null)
             {
                 ViewBag.MenuList = menu.menu;
             }
@@ -144,7 +144,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         {
             model.CreateTime = DateTime.Now;
             model.CreatorId = this.Admin.Id;
-            if(model.Id==0)
+            if (model.Id == 0)
             {
                 WeiXinService.AutoReplyMessageInsert(model);
             }
@@ -177,10 +177,10 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// 产品列表
         /// </summary>
         /// <returns></returns>
-        public ActionResult Product(int pageIndex=1,int pageSize=10)
+        public ActionResult Product(int pageIndex = 1, int pageSize = 10)
         {
             var status = 1;//调取显示的
-            var productList =ProductService.GetProducts(pageIndex,pageSize,status);
+            var productList = ProductService.GetProducts(pageIndex, pageSize, status);
             ViewBag.ProductList = productList;
             return View();
         }
@@ -190,9 +190,9 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
-        public ActionResult ProductAddOrEdit(int id=0)
+        public ActionResult ProductAddOrEdit(int id = 0)
         {
-            if(id>0)
+            if (id > 0)
             {
                 ViewBag.Product = ProductService.GetProductById(id);
             }
@@ -210,32 +210,32 @@ namespace DotNet.CloudFarm.WebSite.Controllers
             product.CreateTime = DateTime.Now;
             product.CreatorId = Admin.Id;
 
-            if (Request.Files.Count > 0 && Request.Files[0].ContentLength>0)
+            if (Request.Files.Count > 0 && Request.Files[0].ContentLength > 0)
             {
                 var file = Request.Files[0];
                 var urlPath = string.Format("/images/upload/{0}/", DateTime.Now.ToString("yyyyMMdd"));
                 var imgFilePath = Server.MapPath(urlPath);
-                var imgName = string.Format("{0}.jpg",Guid.NewGuid());
+                var imgName = string.Format("{0}.jpg", Guid.NewGuid());
                 if (!Directory.Exists(imgFilePath))
                 {
                     Directory.CreateDirectory(imgFilePath);
                 }
-                file.SaveAs(Path.Combine(imgFilePath,imgName));
-                product.ImgUrl = string.Format("{0}{1}",urlPath,imgName);
+                file.SaveAs(Path.Combine(imgFilePath, imgName));
+                product.ImgUrl = string.Format("{0}{1}", urlPath, imgName);
             }
             else
             {
-                if(string.IsNullOrEmpty(product.ImgUrl))
+                if (string.IsNullOrEmpty(product.ImgUrl))
                 {
                     product.ImgUrl = "/images/no_pic.jpg";
                 }
             }
-            if(product.Id==0)
+            if (product.Id == 0)
             {
                 //insert
                 ProductService.InsertProduct(product);
             }
-            else if(product.Id>0)
+            else if (product.Id > 0)
             {
                 //update
                 ProductService.UpdateProduct(product);
@@ -250,7 +250,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// <param name="pageSize"></param>
         /// <param name="pageIndex"></param>
         /// <returns></returns>
-        public JsonResult GetProducts(int pageSize=20,int pageIndex=1)
+        public JsonResult GetProducts(int pageSize = 20, int pageIndex = 1)
         {
             var productList = ProductService.GetProducts(pageIndex, pageSize);
             var result = new
@@ -259,9 +259,9 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 PageSize = productList.PageSize,
                 Products = productList.ToList(),
                 Count = productList.TotalCount,
-                PageNo=productList.TotalCount % productList.PageSize != 0 ? (productList.TotalCount / productList.PageSize) + 1 : productList.TotalCount / productList.PageSize
+                PageNo = productList.TotalCount % productList.PageSize != 0 ? (productList.TotalCount / productList.PageSize) + 1 : productList.TotalCount / productList.PageSize
             };
-            return Json(result,JsonRequestBehavior.AllowGet);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         public JsonResult DelProduct(int id, int pageSize = 20, int pageIndex = 1)
         {
             var status = -1;
-            ProductService.UpdateStatus(id,status);
+            ProductService.UpdateStatus(id, status);
             var productList = ProductService.GetProducts(pageIndex, pageSize);
             var result = new
             {
@@ -282,7 +282,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 PageSize = productList.PageSize,
                 Products = productList.ToList(),
                 Count = productList.TotalCount,
-                PageNo=productList.TotalCount % productList.PageSize != 0 ? (productList.TotalCount / productList.PageSize) + 1 : productList.TotalCount / productList.PageSize
+                PageNo = productList.TotalCount % productList.PageSize != 0 ? (productList.TotalCount / productList.PageSize) + 1 : productList.TotalCount / productList.PageSize
             };
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -316,7 +316,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         }
         #endregion
 
-       
+
 
         #region 订单后台
         public ActionResult OrderList()
@@ -324,9 +324,9 @@ namespace DotNet.CloudFarm.WebSite.Controllers
             return View();
         }
 
-        public JsonResult GetOrderList(DateTime? startTime,DateTime? endTime,long? orderId, string mobile,int? status,int pageSize=20, int pageIndex=1)
+        public JsonResult GetOrderList(DateTime? startTime, DateTime? endTime, long? orderId, string mobile, int? status, int pageSize = 20, int pageIndex = 1)
         {
-            var orderList = OrderService.GetOrderList(pageIndex, pageSize,startTime,endTime,orderId,mobile,status);
+            var orderList = OrderService.GetOrderList(pageIndex, pageSize, startTime, endTime, orderId, mobile, status);
             var result = new
             {
                 PageIndex = orderList.Data.PageIndex,
@@ -344,7 +344,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        public JsonResult CancelOrder(long orderId,int userId,int pageIndex,int pageSize)
+        public JsonResult CancelOrder(long orderId, int userId, int pageIndex, int pageSize)
         {
             var status = OrderStatus.Close.GetHashCode();
             var orderList = ChangeOrderStatus(orderId, userId, pageIndex, pageSize, status);
@@ -357,8 +357,39 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 PageNo = orderList.Data.TotalCount % orderList.Data.PageSize != 0 ?
                     (orderList.Data.TotalCount / orderList.Data.PageSize) + 1 : orderList.Data.TotalCount / orderList.Data.PageSize
             };
-            return Json(result,JsonRequestBehavior.AllowGet);
-            
+            return Json(result, JsonRequestBehavior.AllowGet);
+
+        }
+
+        /// <summary>
+        /// 批量取消订单
+        /// </summary>
+        /// <param name="orderIdList"></param>
+        /// <param name="userIdList"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public JsonResult BatchCancelOrder(string orderIdList, int pageIndex, int pageSize)
+        {
+            var status = OrderStatus.Close.GetHashCode();
+            var orderIdStrList = orderIdList.Split(',');
+            var orderIds = new List<long>();
+            foreach (var oid in orderIdStrList)
+            {
+                orderIds.Add(Convert.ToInt64(oid));
+            }
+            OrderService.BatchCancelOrder(orderIds, status);
+            var orderList = OrderService.GetOrderList(pageIndex, pageSize, null, null, null, null, null);
+            var result = new
+            {
+                PageIndex = orderList.Data.PageIndex,
+                PageSize = orderList.Data.PageSize,
+                List = orderList.Data.ToList(),
+                Count = orderList.Data.TotalCount,
+                PageNo = orderList.Data.TotalCount % orderList.Data.PageSize != 0 ?
+                    (orderList.Data.TotalCount / orderList.Data.PageSize) + 1 : orderList.Data.TotalCount / orderList.Data.PageSize
+            };
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
         /// <summary>
@@ -391,26 +422,26 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         public JsonResult ConfirmOrderPayReturn(long orderId, int userId, int pageIndex, int pageSize)
         {
             var status = OrderStatus.Complete.GetHashCode();
-            var order = OrderService.GetOrder(userId,orderId);
+            var order = OrderService.GetOrder(userId, orderId);
             var user = UserService.GetUserByUserId(userId);
             var product = ProductService.GetProductById(order.ProductId);
             Result<DotNet.Common.Collections.PagedList<OrderManageViewModel>> orderList = new Result<Common.Collections.PagedList<OrderManageViewModel>>();
             var isSuccess = false;
             var msg = "";
-            if(order.Status==OrderStatus.WaitingConfirm.GetHashCode() && product.EndTime.AddDays(product.EarningDay)<DateTime.Now)
+            if (order.Status == OrderStatus.WaitingConfirm.GetHashCode() && product.EndTime.AddDays(product.EarningDay) < DateTime.Now)
             {
-                if (order.PayType==0)
+                if (order.PayType == 0)
                 {
                     //调取微信企业支付接口
-                    var refundPrincipal = order.Price*order.ProductCount; //购买本金
+                    var refundPrincipal = order.Price * order.ProductCount; //购买本金
                     var descPrincipal = string.Format("羊客【{0}】结算本金", product.Name);
-                    var payResult = WeixinPayApi.QYPaySplit(user.WxOpenId,orderId,refundPrincipal,descPrincipal,payUpperLimit);
+                    var payResult = WeixinPayApi.QYPaySplit(user.WxOpenId, orderId, refundPrincipal, descPrincipal, payUpperLimit);
 
                     var refundBonus = product.Earning * order.ProductCount;
                     var descBonus = string.Format("羊客【{0}】结算收益", product.Name);
                     var payResultBonus = WeixinPayApi.QYPaySplit(user.WxOpenId, orderId, refundBonus, descBonus, payUpperLimit);
 
-                    if (payResult  && payResultBonus)
+                    if (payResult && payResultBonus)
                     {
                         isSuccess = true;
                     }
@@ -427,14 +458,14 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                     orderList = ChangeOrderStatus(orderId, userId, pageIndex, pageSize, status);
                     isSuccess = true;
                 }
-               
+
             }
             else
             {
                 msg = "订单状态不是【待确认结算】或订单尚未达到结算期";
                 orderList = OrderService.GetOrderList(pageIndex, pageSize);
             }
-      
+
             var result = new
             {
                 IsSuccess = isSuccess,
@@ -446,7 +477,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 PageNo = orderList.Data.TotalCount % orderList.Data.PageSize != 0 ?
                     (orderList.Data.TotalCount / orderList.Data.PageSize) + 1 : orderList.Data.TotalCount / orderList.Data.PageSize
             };
-                 
+
             return Json(result, JsonRequestBehavior.AllowGet);
 
         }
@@ -456,15 +487,15 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        public ActionResult PayRefund(long orderId,int userId)
+        public ActionResult PayRefund(long orderId, int userId)
         {
             var weixinPayLogList = WeiXinService.GetPayLogListByOrderId(orderId);
             ViewBag.Msg = "";
-            if (weixinPayLogList==null || weixinPayLogList.Count==0)
+            if (weixinPayLogList == null || weixinPayLogList.Count == 0)
             {
                 var msg = "";
-                weixinPayLogList = createWeixinPayLog(orderId,userId, out msg);
-                if (weixinPayLogList==null)
+                weixinPayLogList = createWeixinPayLog(orderId, userId, out msg);
+                if (weixinPayLogList == null)
                 {
                     ViewBag.Msg = msg;
                     weixinPayLogList = new List<WeixinPayLog>();
@@ -480,30 +511,30 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public JsonResult ConfirmOrderRefund(int id,int userId)
+        public JsonResult ConfirmOrderRefund(int id, int userId)
         {
-            var success= true;
-            var msg ="";
+            var success = true;
+            var msg = "";
             var paylog = WeiXinService.GetPayLogById(id);
-            if(paylog.Id>0)
+            if (paylog.Id > 0)
             {
                 //企业支付
                 var payCode = paylog.OrderId.ToString() + paylog.Id.ToString();
                 var payResultMsg = "";
                 var payResult = WeixinPayApi.QYPay(paylog.WxOpenId, payCode, paylog.Amount, paylog.Description, out payResultMsg);
-                if (payResult=="SUCCESS")
+                if (payResult == "SUCCESS")
                 {
                     success = true;
                     //更新paylog状态
-                    WeiXinService.WeixinPayLogUpdateStatus(id,1);
+                    WeiXinService.WeixinPayLogUpdateStatus(id, 1);
                     //确认是否都处于结算完成状态
-                   var hasUnRefund =  WeiXinService.WeixinPayLogCheckStatus(paylog.OrderId, 0);//返回是否还有状态为0的数据
-                    //如果没有状态为0的数据,修改订单状态为已完成
-                   if (!hasUnRefund)
-                   {
-                       var orderStatus = OrderStatus.Complete.GetHashCode();
-                       OrderService.UpdateOrderStatus(userId, paylog.OrderId, orderStatus);
-                   }
+                    var hasUnRefund = WeiXinService.WeixinPayLogCheckStatus(paylog.OrderId, 0);//返回是否还有状态为0的数据
+                                                                                               //如果没有状态为0的数据,修改订单状态为已完成
+                    if (!hasUnRefund)
+                    {
+                        var orderStatus = OrderStatus.Complete.GetHashCode();
+                        OrderService.UpdateOrderStatus(userId, paylog.OrderId, orderStatus);
+                    }
 
                 }
                 else
@@ -539,7 +570,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// 根据订单创建paylog
         /// </summary>
         /// <returns></returns>
-        private IList<WeixinPayLog> createWeixinPayLog(long orderId,int userId,out string message)
+        private IList<WeixinPayLog> createWeixinPayLog(long orderId, int userId, out string message)
         {
             var order = OrderService.GetOrder(userId, orderId);
             var user = UserService.GetUserByUserId(order.UserId);
@@ -554,7 +585,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                     var amount = refundPrincipal;
                     while (amount > 0M)
                     {
-                        var desc="";
+                        var desc = "";
                         if (amount <= payUpperLimit)
                         {
                             if (count > 1)
@@ -562,7 +593,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                                 desc = string.Format("{0}第{1}笔", descPrincipal, count);
                             }
                             else
-	                        {
+                            {
                                 desc = descPrincipal;
                             }
                             WeiXinService.InsertWeixinPayLog(new WeixinPayLog()
@@ -607,7 +638,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                     });
                     message = "插入成功";
                     return WeiXinService.GetPayLogListByOrderId(orderId);
-                    
+
                 }
                 else
                 {
@@ -684,7 +715,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public JsonResult GetUserListBySourceId(string sourceId,int pageIndex = 1, int pageSize = 20)
+        public JsonResult GetUserListBySourceId(string sourceId, int pageIndex = 1, int pageSize = 20)
         {
             var userList = UserService.GetUserListBySourceId(sourceId, pageIndex, pageSize);
             var result = new
@@ -715,7 +746,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public JsonResult GetUserList(int pageIndex=1,int pageSize=20)
+        public JsonResult GetUserList(int pageIndex = 1, int pageSize = 20)
         {
             var userList = UserService.GetUserList(pageIndex, pageSize);
             var result = new
@@ -763,8 +794,8 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         {
             var user = UserService.GetUser(mobile);
             int userid = 0;
-            int.TryParse(mobile,out userid);
-            if (user.UserId==0 && userid>0)
+            int.TryParse(mobile, out userid);
+            if (user.UserId == 0 && userid > 0)
             {
                 user = UserService.GetUserByUserId(userid);
             }
@@ -772,7 +803,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
             {
                 PageIndex = 1,
                 PageSize = 20,
-                List = new List<UserModel>(){user},
+                List = new List<UserModel>() { user },
                 Count = 1,
                 PageNo = 1,
             };
@@ -798,14 +829,14 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// <returns></returns>
         public JsonResult AddQRCode(string qr)
         {
-            var result=new Result<bool>();
+            var result = new Result<bool>();
             var flag = false;
             string message = string.Empty;
             var isInsert = 0;
             try
             {
                 var qrModel = JsonHelper.FromJson<QRCode>(qr);
-                    //preSaleProduct = JsonHelper.FromJson<PreSaleProduct>(productJson);
+                //preSaleProduct = JsonHelper.FromJson<PreSaleProduct>(productJson);
 
                 var accesstoken = AccessTokenContainer.TryGetToken(AppId, AppSecret);
                 var qrResult = Senparc.Weixin.MP.AdvancedAPIs.QrCode.QrCodeApi.CreateByStr(accesstoken, qrModel.SourceCode);
@@ -813,10 +844,10 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 qrModel.QRCodeUrl = qrLink;
                 qrModel.CreateTime = DateTime.Now;
                 qrModel.Status = 1;
-                 isInsert = UserService.InsertQRCode(qrModel);
+                isInsert = UserService.InsertQRCode(qrModel);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 isInsert = 0;
             }
@@ -827,7 +858,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// ajax获取二维码列表
         /// </summary>
         /// <returns></returns>
-        public JsonResult getqrList(int pageIndex=1,int pageSize=20)
+        public JsonResult getqrList(int pageIndex = 1, int pageSize = 20)
         {
             var qrList = UserService.GetQRList(pageIndex, pageSize);
             var result = new
@@ -872,7 +903,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public ActionResult GetPreSaleOrderlist(DateTime? startTime, DateTime? endTime, long? orderId, string mobile, int? status,int pageIndex=1,int pageSize=30)
+        public ActionResult GetPreSaleOrderlist(DateTime? startTime, DateTime? endTime, long? orderId, string mobile, int? status, int pageIndex = 1, int pageSize = 30)
         {
             var predicate = PredicateBuilder.True<PreSaleOrder>();
             predicate = predicate.And(p => p.DeleteTag == 0 && p.Status != 0);
@@ -893,26 +924,26 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 predicate = predicate.And(p => p.Status == status.Value);
             }
 
-            var data=PreSaleOrderService.GetPreSaleOrderCollection(predicate, p => p.OrderId, "desc", pageIndex, pageSize);
+            var data = PreSaleOrderService.GetPreSaleOrderCollection(predicate, p => p.OrderId, "desc", pageIndex, pageSize);
             return Content(JsonHelper.ToJson(new
             {
                 items = data,
                 TotalCount = data.TotalCount,
                 PageIndex = data.PageIndex,
                 PageSize = data.PageSize,
-                PageCount=data.PageCount
+                PageCount = data.PageCount
             }), "application/javascript");
         }
 
-        public ActionResult ModifyPreOrder(long? orderId,string express,int? deleteTag)
+        public ActionResult ModifyPreOrder(long? orderId, string express, int? deleteTag)
         {
-            var result=new Result<PreSaleOrder>();
+            var result = new Result<PreSaleOrder>();
             if (orderId.HasValue)
             {
-                
+
                 //var preSaleOrder = new PreSaleOrder() {OrderId = orderId.Value,  Status = 2};
                 var preSaleOrder = PreSaleOrderService.GetPreSaleOrder(orderId.Value);
-                preSaleOrder.Status=2;
+                preSaleOrder.Status = 2;
                 if (deleteTag.HasValue)
                 {
                     preSaleOrder.DeleteTag = deleteTag.Value;
@@ -921,13 +952,13 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 {
                     preSaleOrder.ExpressDelivery = express;
                 }
-                var flag= PreSaleOrderService.ModifyPreOrder(preSaleOrder);
-                if(flag)
+                var flag = PreSaleOrderService.ModifyPreOrder(preSaleOrder);
+                if (flag)
                 {
                     SMSService.SendSMSPreOrderSendProduct(preSaleOrder.Phone, preSaleOrder.OrderId.ToString());
                 }
                 result.Data = PreSaleOrderService.GetPreSaleOrder(orderId.Value);
-                result.Status = new Status() {Code = flag?"1":"0",Message = flag?"成功": "失败" };
+                result.Status = new Status() { Code = flag ? "1" : "0", Message = flag ? "成功" : "失败" };
             }
             return Content(JsonHelper.ToJson(result), "application/javascript");
         }
@@ -963,7 +994,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 predicate = predicate.And(p => p.Status == status.Value);
             }
 
-            var preSaleOrders= PreSaleOrderService.GetPreSaleOrderCollection(predicate, p => p.OrderId, "desc", 1, int.MaxValue);
+            var preSaleOrders = PreSaleOrderService.GetPreSaleOrderCollection(predicate, p => p.OrderId, "desc", 1, int.MaxValue);
             var columnLength = 10;
             var rowLength = preSaleOrders.Count;
 
@@ -1012,14 +1043,14 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                             sheet.SetColumnWidth(j, 256 * 15);
                             break;
                         case 5:
-                            cellValue =order.Area.FullName+order.Address;
+                            cellValue = order.Area.FullName + order.Address;
                             sheet.SetColumnWidth(j, 256 * 20);
                             break;
                         case 6:
                             cellValue = order.ExpressDelivery;
                             break;
                         case 7:
-                            cellValue =order.StatusDesc;
+                            cellValue = order.StatusDesc;
                             break;
                         case 8:
                             cellValue = order.Receiver;
@@ -1051,13 +1082,13 @@ namespace DotNet.CloudFarm.WebSite.Controllers
 
         public ActionResult EditPreSaleProduct(string productJson)
         {
-            var result=new Result<bool>();
+            var result = new Result<bool>();
             var flag = false;
             string message = string.Empty;
             try
             {
                 PreSaleProduct preSaleProduct = JsonHelper.FromJson<PreSaleProduct>(productJson);
-                
+
                 if (preSaleProduct.ProductId > 0)
                 {
                     var product = PreSaleProductService.GetPreSaleProduct(preSaleProduct.ProductId);
@@ -1096,8 +1127,8 @@ namespace DotNet.CloudFarm.WebSite.Controllers
                 flag = false;
                 message = ex.Message;
             }
-            
-            result.Status=new Status() {Code = flag?"1":"0",Message = flag?"保存成功": message };
+
+            result.Status = new Status() { Code = flag ? "1" : "0", Message = flag ? "保存成功" : message };
             return Content(JsonHelper.ToJson(result), "application/javascript");
             //var result = new Result<PreSaleProduct>();
             //return Content(JsonHelper.ToJson(result), "application/javascript");
@@ -1105,7 +1136,7 @@ namespace DotNet.CloudFarm.WebSite.Controllers
 
         //public ActionResult PreSaleProductList()
         //{
-            
+
         //    return Content(JsonHelper.ToJson(productList), "application/javascript");
         //}
         #endregion
