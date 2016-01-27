@@ -518,7 +518,6 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                 cmd.CommandText = command;
                 cmd.SetParameterValue("@Status", status);
                 return cmd.ExecuteNonQuery() > 0;
-
             }
                
         }
