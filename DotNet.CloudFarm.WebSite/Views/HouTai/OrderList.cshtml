@@ -157,6 +157,7 @@
                                 <!-- ko if: Status()==2 -->
                                 <!-- ko if: PayType()==0 -->
                                 <a data-bind="attr:{href:'/houtai/payrefund?orderid='+OrderId()+'&userid='+UserId()}" class="btn btn-success paylog"><i class="icon-edit icon-white"></i>确认结算</a>
+                                <a data-bind="click:UseCashOrderPayReturn" class="btn btn-info"><i class="icon-edit icon-white"></i>已线下结算</a>
                                 <!-- /ko -->
                                 <!-- ko if: PayType()==1 -->
                                 <a data-bind="click:ConfirmOrderPayReturn" class="btn btn-success paylog"><i class="icon-edit icon-white"></i>确认结算</a>
@@ -170,7 +171,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div><a href="javascript:void(0);" class="btn btn-danger" data-bind="click:LotCancelOrder"><i class="icon-edit icon-white"></i>批量取消订单</a></div>
+                <div><a href="javascript:void(0);" class="btn btn-danger" data-bind="click:BatchCancelOrder"><i class="icon-edit icon-white"></i>批量取消订单</a></div>
                 <div id="pages"></div>
                 @*<div class="pagination pagination-centered">
                       <ul>
@@ -308,14 +309,10 @@
                 }
                 return result;
             }
-            self.LotCancelOrder = function () {
+            self.BatchCancelOrder = function () {
                 var orderIdList = GetAllCheckedBox("OrderId");
-                //var userIdList = GetAllCheckedBox("UserId");
                 var statusList = GetAllCheckedBox("Status");
                 var status = JudgeStatus(statusList);
-                //    console.log(orderIdList.length);
-                //    console.log(userIdList);
-                //    console.log(statusList);
                 if (orderIdList.length == 0) {
                     $("#confirmText").text("请选择订单！");
                     $('#myAlertDialog').modal('show');
@@ -331,29 +328,6 @@
                     });
 
                 }
-                    //    else {
-                    //        $("#confirmText").text("确认要取消这些订单吗？");
-                    //        $('#myAlertDialog').modal('show');
-                    //        $("#confirmBtn").unbind("click").click(function () {
-                    //            for (i = 0; i < orderIdList.length; i++) {
-                    //                var orderId = orderIdList[i];
-                    //                var userId = userIdList[i];
-                    //                $.ajax({
-                    //                    type: "POST",
-                    //                    url: "/houtai/CancelOrder",
-                    //                    data: "pageIndex=" + pageIndex + "&pageSize=" + pageSize + "&orderId=" + orderId
-                    //                    + "&userId=" + userId,
-                    //                    success: function (data) {
-                    //                        $('#myAlertDialog').modal('hide');
-                    //                        FillOrder(data);
-                    //                        pager(data.PageIndex, data.PageNo);
-                    //                    }
-                    //                });
-                    //            }
-                    //        });
-                    //    }
-
-                    //}
                 else {
                     $("#confirmText").text("确认要取消这些订单吗？");
                     $('#myAlertDialog').modal('show');
@@ -374,12 +348,10 @@
 
             self.GetAllCheckBoxClick = function () {
                 if (self.AllCheck()) {
-                    //AllCheck = false;
                     self.AllCheck(false);
                 }
                 else {
                     self.AllCheck(true);
-                    //AllCheck = true;
                 };
                 var list = self.List();
 
@@ -475,6 +447,29 @@
                             $('#myAlertDialog').modal('hide');
                             FillOrder(data);
                             pager(data.PageIndex, data.PageNo);
+                        }
+                    });
+                });
+            }
+
+            self.UseCashOrderPayReturn = function () {
+                var orderId = self.OrderId();
+                var userId = self.UserId();
+                $("#confirmText").text("确认该订单已线下支付？");
+                $("#myAlertDialog").modal("show");
+                $("#confirmBtn").unbind("click").click(function () {
+                    $.ajax({
+                        type: "POST",
+                        url: "/houtai/UseCashOrderPayReturn",
+                        data: "pageIndex=" + pageIndex + "&pageSize=" + pageSize + "&orderId=" + orderId
+                            + "&userId=" + userId,
+                        success: function (data) {
+                            if (data.IsSuccess == false) {
+                                alert("结算失败，原因：" + data.Message);
+                            }
+                            $("#myAlertDialog").modal("hide");
+                            FillOrder(data);
+                            pager(data.PageIndex, PageNo);
                         }
                     });
                 });

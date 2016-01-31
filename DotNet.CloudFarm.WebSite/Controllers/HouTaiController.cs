@@ -483,6 +483,55 @@ namespace DotNet.CloudFarm.WebSite.Controllers
         }
 
         /// <summary>
+        /// 已线下结算
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <param name="userId"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public JsonResult UseCashOrderPayReturn(long orderId, int userId, int pageIndex, int pageSize)
+        {
+            var order = OrderService.GetOrder(userId, orderId);
+            var product = ProductService.GetProductById(order.ProductId);
+            var isSuccess = false;
+            var msg = "";
+            Result<DotNet.Common.Collections.PagedList<OrderManageViewModel>> orderList = new Result<Common.Collections.PagedList<OrderManageViewModel>>();
+            if (order.Status == OrderStatus.WaitingConfirm.GetHashCode() && product.EndTime.AddDays(product.EarningDay) < DateTime.Now)
+            {
+                isSuccess = OrderService.UseCashOrderPayReturn(orderId, userId);
+                orderList = OrderService.GetOrderList(pageIndex, pageSize);
+            }
+            else
+            {
+                msg = "订单状态不是【待确认结算】或订单尚未达到结算期";
+                orderList = OrderService.GetOrderList(pageIndex, pageSize);
+            }
+            var result = new
+            {
+                IsSuccess = isSuccess,
+                Message = msg,
+                PageIndex = orderList.Data.PageIndex,
+                PageSize = orderList.Data.PageSize,
+                List = orderList.Data.ToList(),
+                Count = orderList.Data.TotalCount,
+                PageNo = orderList.Data.TotalCount % orderList.Data.PageSize != 0 ?
+                                (orderList.Data.TotalCount / orderList.Data.PageSize) + 1 : orderList.Data.TotalCount / orderList.Data.PageSize
+            };
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        //public JsonResult UseCashOrderPayReturn(long orderId, int userId, int pageIndex, int pageSize)
+        //{
+        //    //改为线下支付方式；
+        //    var payType = 1;
+        //    OrderService.UpdateOrderPayType(orderId, userId, payType);
+        //    //调用确认结算方法
+        //    var result = ConfirmOrderPayReturn(orderId, userId, pageIndex, pageSize);
+        //    return result;
+        //}
+
+        /// <summary>
         /// 结算详情页
         /// </summary>
         /// <param name="orderId"></param>

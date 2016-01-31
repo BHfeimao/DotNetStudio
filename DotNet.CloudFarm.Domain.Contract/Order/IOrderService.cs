@@ -161,6 +161,10 @@ namespace DotNet.CloudFarm.Domain.Contract.Order
         /// <returns></returns>
         bool BatchCancelOrder(List<long> orderIds, int status);
 
-        
+
+        bool UseCashOrderPayReturn(long orderId, int userId);
+
+
+
     }
 }

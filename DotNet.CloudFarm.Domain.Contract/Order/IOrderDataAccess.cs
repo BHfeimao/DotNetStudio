@@ -145,5 +145,7 @@ namespace DotNet.CloudFarm.Domain.Contract.Order
         bool CheckOrderExist(long orderId);
 
         bool BatchCancelOrder(List<long> orderIds, int status);
+
+        bool UseCashOrderPayReturn(long orderId, int userId);
     }
 }

@@ -118,7 +118,7 @@ namespace DotNet.CloudFarm.Domain.Impl.Order
                     //育肥状态
                     var orderViewModel =
                         currentOrderList.Where(s => s.StartTime < now && s.EndTime <= now)
-                            .OrderByDescending(s => s.CreateTime)
+                            //.OrderByDescending(s => s.CreateTime)
                             .FirstOrDefault();
 
                     if (orderViewModel != null)
@@ -293,6 +293,11 @@ namespace DotNet.CloudFarm.Domain.Impl.Order
         public bool BatchCancelOrder(List<long> orderIds, int status)
         {
             return orderDataAccess.BatchCancelOrder(orderIds, status);
+        }
+
+        public bool UseCashOrderPayReturn (long orderId, int userId)
+        {
+            return orderDataAccess.UseCashOrderPayReturn(orderId, userId);
         }
     }
 }

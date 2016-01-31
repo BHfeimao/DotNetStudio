@@ -16,7 +16,7 @@ using System.Net.Configuration;
 
 namespace DotNet.CloudFarm.Domain.DTO.Order
 {
-    public class OrderDataAccess:IOrderDataAccess
+    public class OrderDataAccess : IOrderDataAccess
     {
         private IProductDataAccess ProductDataAccess;
 
@@ -30,9 +30,9 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
             var result = new List<TopOrderInfo>();
             using (var cmd = DataCommandManager.GetDataCommand("GetTopOrderList"))
             {
-                cmd.SetParameterValue("@PageIndex",pageIndex);
+                cmd.SetParameterValue("@PageIndex", pageIndex);
                 cmd.SetParameterValue("@PageSize", pageSize);
-                using (var dr=cmd.ExecuteDataReader())
+                using (var dr = cmd.ExecuteDataReader())
                 {
                     while (dr.Read())
                     {
@@ -44,7 +44,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                         topOrderInfo.WxNickName = !Convert.IsDBNull(dr["WxNickName"]) ? dr["WxNickName"].ToString() : string.Empty;
                         result.Add(topOrderInfo);
                     }
-                }   
+                }
             }
             return result;
         }
@@ -132,7 +132,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                         orderViewModel.Status = !Convert.IsDBNull(dr["Status"]) ? Convert.ToInt32(dr["Status"]) : 0;
                         orderViewModel.PayType = !Convert.IsDBNull(dr["PayType"]) ? Convert.ToInt32(dr["PayType"]) : 0;
                         orderViewModel.ProductName = !Convert.IsDBNull(dr["ProductName"]) ? dr["ProductName"].ToString() : string.Empty;
-                        orderViewModel.ProductImgUrl = !Convert.IsDBNull(dr["ImgUrl"])? dr["ImgUrl"].ToString(): string.Empty;
+                        orderViewModel.ProductImgUrl = !Convert.IsDBNull(dr["ImgUrl"]) ? dr["ImgUrl"].ToString() : string.Empty;
                         orderViewModel.TotalMoney = !Convert.IsDBNull(dr["TotalMoney"]) ? Convert.ToDecimal(dr["TotalMoney"]) : 0;
 
                         orderViewModel.EarningDay = !Convert.IsDBNull(dr["EarningDay"]) ? Convert.ToInt32(dr["EarningDay"]) : 0;
@@ -177,19 +177,19 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                 cmd.SetParameterValue("@Status", orderStatus);
                 var returnValue = cmd.ExecuteNonQuery();
 
-                result.Status = returnValue > 0 ? new Status() {Code = "1"} : new Status() { Code = "0" };
+                result.Status = returnValue > 0 ? new Status() { Code = "1" } : new Status() { Code = "0" };
                 var orderModel = GetOrder(orderId, userId);
-                if (orderModel != null&&orderModel.ProductId>0)
+                if (orderModel != null && orderModel.ProductId > 0)
                 {
                     var productModel = ProductDataAccess.GetProductById(orderModel.ProductId);
                     result.Data = OrderModelToOrderViewModel(orderModel, productModel);
                 }
-                   
+
                 return result;
             }
         }
 
-        private OrderViewModel OrderModelToOrderViewModel(OrderModel orderModel,ProductModel productModel)
+        private OrderViewModel OrderModelToOrderViewModel(OrderModel orderModel, ProductModel productModel)
         {
             var orderViewModel = new OrderViewModel();
             if (orderModel != null)
@@ -202,13 +202,13 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                 orderViewModel.Price = orderModel.Price;
                 orderViewModel.Status = orderModel.Status;
                 orderViewModel.PayType = orderModel.PayType;
-                orderViewModel.TotalMoney = orderModel.Price*orderModel.ProductCount;
+                orderViewModel.TotalMoney = orderModel.Price * orderModel.ProductCount;
             }
             if (productModel != null)
             {
                 orderViewModel.ProductName = productModel.Name;
             }
-            
+
             return orderViewModel;
         }
 
@@ -251,7 +251,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                     }
                 }
             }
-            var result = new PagedList<OrderManageViewModel>(orderList, pageIndex, pageSize,count);
+            var result = new PagedList<OrderManageViewModel>(orderList, pageIndex, pageSize, count);
             return result;
         }
 
@@ -308,9 +308,9 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
             var orderList = new List<OrderViewModel>();
             using (var cmd = DataCommandManager.GetDataCommand("GetUserAllOrder"))
             {
-                cmd.CommandText = string.Format(cmd.CommandText, string.Join(",", orderStatus)); 
+                cmd.CommandText = string.Format(cmd.CommandText, string.Join(",", orderStatus));
                 cmd.SetParameterValue("@UserId", userId);
-                using (var dr=cmd.ExecuteDataReader())
+                using (var dr = cmd.ExecuteDataReader())
                 {
                     while (dr.Read())
                     {
@@ -334,7 +334,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                         orderViewModel.StartTime = !Convert.IsDBNull(dr["StartTime"]) ? Convert.ToDateTime(dr["StartTime"]) : DateTime.MinValue;
                         orderViewModel.EndTime = !Convert.IsDBNull(dr["EndTime"]) ? Convert.ToDateTime(dr["EndTime"]) : DateTime.MinValue;
 
-                        
+
                         if (orderViewModel.OrderId > 0)
                         {
                             orderList.Add(orderViewModel);
@@ -356,7 +356,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                 cmd.SetParameterValue("@Status", orderPayModel.Status);
                 cmd.SetParameterValue("@CreateTime", orderPayModel.CreateTime);
 
-                return cmd.ExecuteNonQuery()>0;
+                return cmd.ExecuteNonQuery() > 0;
             }
         }
 
@@ -379,7 +379,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
             using (var cmd = DataCommandManager.GetDataCommand("GetOrderStatis"))
             {
                 cmd.CommandText = string.Format(cmd.CommandText, string.Join(",", status));
-                using (var dr=cmd.ExecuteDataReader())
+                using (var dr = cmd.ExecuteDataReader())
                 {
                     while (dr.Read())
                     {
@@ -416,7 +416,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
         }
 
         public PagedList<OrderManageViewModel> GetOrderList(int pageIndex, int pageSize, DateTime? startTime,
-            DateTime? endTime, long? orderId, string mobile,int? status)
+            DateTime? endTime, long? orderId, string mobile, int? status)
         {
             var orderList = new List<OrderManageViewModel>();
             var totalOrderCount = 0;
@@ -424,10 +424,10 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
             {
                 cmd.SetParameterValue("@PageIndex", pageIndex);
                 cmd.SetParameterValue("@PageSize", pageSize);
-                
+
                 var command = cmd.CommandText;
                 StringBuilder condition = new StringBuilder();
-                if (startTime!=null)
+                if (startTime != null)
                 {
                     condition.Append(" AND op.CreateTime>@StartTime");
                     cmd.SetParameterValue("@StartTime", startTime.Value);
@@ -437,7 +437,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                     condition.Append(" AND op.CreateTime>@EndTime");
                     cmd.SetParameterValue("@EndTime", endTime.Value);
                 }
-                if (orderId!=null)
+                if (orderId != null)
                 {
                     condition.Append(" AND op.OrderId = @OrderId");
                     cmd.SetParameterValue("@OrderId", orderId.Value);
@@ -496,7 +496,7 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                 var temp = cmd.ExecuteScalar();
                 if (temp != null)
                 {
-                    return Convert.ToInt32(temp) >0;
+                    return Convert.ToInt32(temp) > 0;
                 }
                 return false;
             }
@@ -519,7 +519,17 @@ namespace DotNet.CloudFarm.Domain.DTO.Order
                 cmd.SetParameterValue("@Status", status);
                 return cmd.ExecuteNonQuery() > 0;
             }
-               
+
+        }
+
+        public bool UseCashOrderPayReturn(long orderId, int userId)
+        {
+            using (var cmd = DataCommandManager.GetDataCommand("UseCashOrderPayReturn"))
+            {
+                cmd.SetParameterValue("@OrderId",orderId);
+                cmd.SetParameterValue("@UserId", userId);
+                return cmd.ExecuteNonQuery() > 0;
+            }
         }
 
         //public Result<PagedList<PreSaleOrder>> GetPreSaleOrderList(int userId, int pageIndex, int pageSize)
